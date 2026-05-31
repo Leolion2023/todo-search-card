@@ -125,15 +125,33 @@ customElements.whenDefined("card-tools").then(() => {
       row.style.flexDirection = "column";
       row.style.gap = "4px";
 
+      const header = document.createElement("div");
+      header.style.display = "flex";
+      header.style.justifyContent = "space-between";
+      header.style.alignItems = "flex-start";
+      header.style.gap = "8px";
+
       const summary = document.createElement("div");
       summary.textContent = item.summary || "(no summary)";
-      row.appendChild(summary);
+      summary.style.fontWeight = "600";
+      header.appendChild(summary);
 
       const status = document.createElement("div");
       status.textContent = item.status === "completed" ? "Completed" : "Needs action";
       status.style.fontSize = "0.8em";
       status.style.opacity = "0.75";
-      row.appendChild(status);
+      status.style.whiteSpace = "nowrap";
+      header.appendChild(status);
+
+      row.appendChild(header);
+
+      const description = document.createElement("div");
+      description.textContent = item.description || "";
+      description.style.fontSize = "0.9em";
+      description.style.opacity = item.description ? "0.9" : "0.5";
+      description.style.lineHeight = "1.4";
+      description.style.whiteSpace = "pre-wrap";
+      row.appendChild(description);
 
       row.addEventListener("click", () => {
         this.hass.callService("todo", "update_item", {
@@ -195,7 +213,7 @@ customElements.whenDefined("card-tools").then(() => {
         this._loadTodoItems(this.todo_list).then(items => {
           this._todoItems = items;
           const newResults = this._todoItems.filter(i =>
-            i.summary.toLowerCase().includes(searchText.toLowerCase())
+            `${i.summary || ""} ${i.description || ""}`.toLowerCase().includes(searchText.toLowerCase())
           );
           this._results = newResults;
         });
