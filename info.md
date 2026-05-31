@@ -1,4 +1,4 @@
-# Search Card
+# Todo Search Card
 
 A Lovelace card that enables searching entries out of todo lists.
 
