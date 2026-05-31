@@ -1,7 +1,7 @@
 customElements.whenDefined("card-tools").then(() => {
   var ct = customElements.get("card-tools");
 
-  class SearchCard extends ct.LitElement {
+  class TodoSearchCard extends ct.LitElement {
     static get properties() {
       return {
         config: { type: Object },
@@ -213,13 +213,13 @@ customElements.whenDefined("card-tools").then(() => {
     }
   }
 
-  customElements.define("search-card", SearchCard);
+  customElements.define("todo-search-card", TodoSearchCard);
 });
 
 setTimeout(() => {
   if (customElements.get("card-tools")) return;
   customElements.define(
-    "search-card",
+    "todo-search-card",
     class extends HTMLElement {
       setConfig() {
         throw new Error(
@@ -232,8 +232,8 @@ setTimeout(() => {
 
 window.customCards = window.customCards || [];
 window.customCards.push({
-  type: "search-card",
-  name: "Search Card",
+  type: "todo-search-card",
+  name: "Todo Search Card",
   preview: true,
   description: "Card to search completed entries of a todolist",
 });
