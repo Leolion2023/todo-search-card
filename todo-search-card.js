@@ -1,5 +1,6 @@
 customElements.whenDefined("card-tools").then(() => {
   var ct = customElements.get("card-tools");
+  const TODO_DOMAIN = "todo";
 
   class TodoSearchCard extends ct.LitElement {
     static get properties() {
@@ -294,6 +295,10 @@ customElements.whenDefined("card-tools").then(() => {
       this._updateConfig({ [ev.target.configValue]: ev.target.checked });
     }
 
+    _todoEntityFilter(entity) {
+      return entity && entity.entity_id && entity.entity_id.split(".", 1)[0] === TODO_DOMAIN;
+    }
+
     render() {
       const config = this.config || {};
 
@@ -304,7 +309,8 @@ customElements.whenDefined("card-tools").then(() => {
             <ha-entity-picker
               .hass=${this.hass}
               .value=${config.todo_list || ""}
-              .includeDomains=${["todo"]}
+              .includeDomains=${[TODO_DOMAIN]}
+              .entityFilter=${this._todoEntityFilter}
               .configValue=${"todo_list"}
               @value-changed=${this._valueChanged}
               label="Todo list entity"
