@@ -2,8 +2,6 @@
 
 A Lovelace card for Home Assistant that searches Todo list entries and lets you toggle their completed state.
 
-![Demo of card](images/demo.gif)
-
 ## Features
 
 - 🔍 Quick Todo list entry search within the Home Assistant frontend
