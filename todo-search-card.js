@@ -36,9 +36,26 @@ customElements.whenDefined("card-tools").then(() => {
     setConfig(config) {
       this.config = config;
       this.todo_list = config.todo_list;
-      this.max_results = this.config.max_results || 10;
+      this.max_results = Number.isFinite(Number(this.config.max_results)) ? Number(this.config.max_results) : 10;
       this.search_text = this.config.search_text || "Type to search...";
       this.search_ticked = this.config.hasOwnProperty("search_ticked") ? this.config.search_ticked : true;
+      this.grid_columns = Number.isFinite(Number(this.config.grid_columns)) ? Math.max(1, Number(this.config.grid_columns)) : 1;
+      this.grid_gap = Number.isFinite(Number(this.config.grid_gap)) ? Math.max(0, Number(this.config.grid_gap)) : 12;
+    }
+
+    static getStubConfig() {
+      return {
+        todo_list: "",
+        max_results: 10,
+        search_text: "Type to search...",
+        search_ticked: true,
+        grid_columns: 1,
+        grid_gap: 12,
+      };
+    }
+
+    static getConfigElement() {
+      return document.createElement("todo-search-card-editor");
     }
 
     getCardSize() {
@@ -89,7 +106,7 @@ customElements.whenDefined("card-tools").then(() => {
         </div>
         ${
           rows.length > 0
-            ? ct.LitHtml`<div id="results">${rows}</div>`
+            ? ct.LitHtml`<div id="results" style="grid-template-columns: repeat(${this.grid_columns}, minmax(0, 1fr)); gap: ${this.grid_gap}px;">${rows}</div>`
             : ""
         }
       </ha-card>
@@ -99,13 +116,26 @@ customElements.whenDefined("card-tools").then(() => {
     _createResultRow(item) {
       const row = document.createElement("div");
       row.className = "search-row";
-      row.style.padding = "8px";
-      row.style.borderBottom = "1px solid var(--divider-color)";
+      row.style.padding = "12px";
+      row.style.border = "1px solid var(--divider-color)";
+      row.style.borderRadius = "12px";
+      row.style.background = "var(--card-background-color)";
       row.style.cursor = "pointer";
-      row.textContent = item.summary || "(no summary)";
-    
+      row.style.display = "flex";
+      row.style.flexDirection = "column";
+      row.style.gap = "4px";
+
+      const summary = document.createElement("div");
+      summary.textContent = item.summary || "(no summary)";
+      row.appendChild(summary);
+
+      const status = document.createElement("div");
+      status.textContent = item.status === "completed" ? "Completed" : "Needs action";
+      status.style.fontSize = "0.8em";
+      status.style.opacity = "0.75";
+      row.appendChild(status);
+
       row.addEventListener("click", () => {
-        // toggle completed -> needs_action (example) or vice versa
         this.hass.callService("todo", "update_item", {
           entity_id: this.todo_list,
           item: item.uid,
@@ -203,7 +233,7 @@ customElements.whenDefined("card-tools").then(() => {
       }
       #results {
         width: 90%;
-        display: block;
+        display: grid;
         padding-bottom: 15px;
         margin-top: 15px;
         margin-left: auto;
@@ -214,6 +244,111 @@ customElements.whenDefined("card-tools").then(() => {
   }
 
   customElements.define("todo-search-card", TodoSearchCard);
+
+  class TodoSearchCardEditor extends ct.LitElement {
+    static get properties() {
+      return {
+        hass: { type: Object },
+        config: { type: Object },
+      };
+    }
+
+    setConfig(config) {
+      this.config = { ...config };
+    }
+
+    _updateConfig(changes) {
+      this.config = { ...this.config, ...changes };
+      this.dispatchEvent(new CustomEvent("config-changed", {
+        detail: { config: this.config },
+        bubbles: true,
+        composed: true,
+      }));
+    }
+
+    _valueChanged(ev) {
+      const target = ev.target;
+      const value = target.type === "number" ? target.valueAsNumber : target.value;
+      this._updateConfig({ [target.configValue]: value });
+    }
+
+    _toggleChanged(ev) {
+      this._updateConfig({ [ev.target.configValue]: ev.target.checked });
+    }
+
+    render() {
+      const config = this.config || {};
+
+      return ct.LitHtml`
+        <div style="display: grid; gap: 16px; padding: 16px;">
+          <div>
+            <div style="font-weight: 600; margin-bottom: 8px;">Todo settings</div>
+            <ha-entity-picker
+              .hass=${this.hass}
+              .value=${config.todo_list || ""}
+              .configValue=${"todo_list"}
+              @value-changed=${this._valueChanged}
+              label="Todo list entity"
+            ></ha-entity-picker>
+            <ha-textfield
+              .value=${config.search_text || "Type to search..."}
+              .configValue=${"search_text"}
+              @input=${this._valueChanged}
+              label="Search text"
+              style="display: block; margin-top: 12px;"
+            ></ha-textfield>
+            <ha-textfield
+              type="number"
+              min="1"
+              step="1"
+              .value=${String(config.max_results ?? 10)}
+              .configValue=${"max_results"}
+              @input=${this._valueChanged}
+              label="Max results"
+              style="display: block; margin-top: 12px;"
+            ></ha-textfield>
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 12px; gap: 12px;">
+              <div>
+                <div style="font-weight: 500;">Search ticked items</div>
+                <div style="font-size: 0.85em; opacity: 0.75;">If off, the card searches unticked items.</div>
+              </div>
+              <ha-switch
+                .checked=${config.search_ticked ?? true}
+                .configValue=${"search_ticked"}
+                @change=${this._toggleChanged}
+              ></ha-switch>
+            </div>
+          </div>
+
+          <div>
+            <div style="font-weight: 600; margin-bottom: 8px;">Grid layout</div>
+            <ha-textfield
+              type="number"
+              min="1"
+              step="1"
+              .value=${String(config.grid_columns ?? 1)}
+              .configValue=${"grid_columns"}
+              @input=${this._valueChanged}
+              label="Columns"
+              style="display: block;"
+            ></ha-textfield>
+            <ha-textfield
+              type="number"
+              min="0"
+              step="1"
+              .value=${String(config.grid_gap ?? 12)}
+              .configValue=${"grid_gap"}
+              @input=${this._valueChanged}
+              label="Gap (px)"
+              style="display: block; margin-top: 12px;"
+            ></ha-textfield>
+          </div>
+        </div>
+      `;
+    }
+  }
+
+  customElements.define("todo-search-card-editor", TodoSearchCardEditor);
 });
 
 setTimeout(() => {
