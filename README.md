@@ -61,6 +61,7 @@ grid_gap: 12
 ## Graphical Setup
 
 The card includes a graphical editor in Home Assistant's card editor. You can configure the todo list, search text, result limit, ticked state, and grid layout without editing YAML by hand.
+The entity picker in that editor is limited to `todo` entities only.
 
 ## Behavior
 

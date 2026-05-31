@@ -286,6 +286,7 @@ customElements.whenDefined("card-tools").then(() => {
             <ha-entity-picker
               .hass=${this.hass}
               .value=${config.todo_list || ""}
+              .includeDomains=${["todo"]}
               .configValue=${"todo_list"}
               @value-changed=${this._valueChanged}
               label="Todo list entity"
