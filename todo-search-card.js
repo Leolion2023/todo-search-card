@@ -246,7 +246,7 @@ customElements.whenDefined("card-tools").then(() => {
 
     _serviceExists(serviceCall) {
       var [domain, service] = serviceCall.split(".");
-      var servicesForDomain = this.hass.services[domain];
+      var servicesForDomain = this.hass.services.async_services_for_domain(domain);
       return servicesForDomain && service in servicesForDomain;
     }
 
