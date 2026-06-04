@@ -80,6 +80,7 @@ customElements.whenDefined("card-tools").then(() => {
               id="searchText"
               .value="${this._searchValue}"
               @input="${this._valueChanged}"
+              @keydown="${this._handleSearchKeyDown}"
               no-label-float
               type="text"
               autocomplete="off"
@@ -184,14 +185,21 @@ customElements.whenDefined("card-tools").then(() => {
       this._results = [];
     }
 
+    _handleSearchKeyDown(ev) {
+      if (ev.key === "Enter") {
+        ev.preventDefault();
+        ev.stopPropagation();
+      }
+    }
+
     _addEntry() {
-      // if (!this._serviceExists("todo.create_item")) {
-      //   alert("The 'todo.create_item' service is not available in your Home Assistant instance.");
-      //   return;
-      // }
-      this.hass.callService("todo", "create_item", {
+      if (!this._serviceExists("todo.add_item")) {
+        alert("The 'todo.add_item' service is not available in your Home Assistant instance.");
+        return;
+      }
+      this.hass.callService("todo", "add_item", {
         entity_id: this.todo_list,
-        summary: this._searchValue || "New item",
+        item: this._searchValue || "New item",
       });
     }
 

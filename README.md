@@ -44,7 +44,7 @@ resources:
 | `grid_columns` | integer | 1              | Number of columns used to render results     |
 | `grid_gap` | integer | 12                   | Gap between result tiles in pixels           |
 
-> Note: The card expects a todo integration that exposes a websocket endpoint `todo/item/list` (returns `{ items: [...] }`) and a service `todo.update_item` used to toggle item status.
+> Note: The card expects a todo integration that exposes a websocket endpoint `todo/item/list` (returns `{ items: [...] }`) and the services `todo.update_item` and `todo.add_item`.
 
 ### Example
 
@@ -66,6 +66,7 @@ The entity picker in that editor is limited to `todo` entities only.
 ## Behavior
 
 - Typing in the search field queries the configured todo list and shows matching entries.
+- Clicking the plus button adds a new item via `todo.add_item`.
 - Clicking a result will call the `todo.update_item` service to toggle the entry's status.
 - Results are displayed as a configurable grid, not a single vertical list.
 
