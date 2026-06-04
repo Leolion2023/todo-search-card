@@ -170,7 +170,7 @@ customElements.whenDefined("card-tools").then(() => {
           item: item.uid,
           status: this.search_ticked ? "needs_action" : "completed",
         });
-        this._debouncedSearch(this._searchValue);
+        this._performSearch(this._searchValue);
       });
     
       return row;
