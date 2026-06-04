@@ -200,6 +200,7 @@ customElements.whenDefined("card-tools").then(() => {
         entity_id: this.todo_list,
         item: this._searchValue || "New item",
       });
+      this._clearInput();
     }
 
     _debounce(func, wait) {
