@@ -88,7 +88,7 @@ customElements.whenDefined("card-tools").then(() => {
               label="${this.search_text}"
             >
               ${
-                this.search_text && this._serviceExists("todo.create_item") 
+                this._searchValue.length > 0
                   ? ct.LitHtml`<ha-icon-button
                       slot="end"
                       @click="${this._addEntry}"
