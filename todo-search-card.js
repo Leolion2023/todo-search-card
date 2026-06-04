@@ -87,12 +87,21 @@ customElements.whenDefined("card-tools").then(() => {
               iconTrailing
               label="${this.search_text}"
             >
-              <ha-icon icon="mdi:magnify" id="searchIcon" slot="leadingIcon"></ha-icon>
+              ${
+                this.search_text && this._serviceExists("todo.create_item") 
+                  ? ct.LitHtml`<ha-icon-button
+                      slot="end"
+                      @click="${this._addEntry}"
+                      title="Add entry"
+                    >
+                      <ha-icon icon="mdi:plus"></ha-icon>
+                    </ha-icon-button>`
+                  : ""
+              }
               <ha-icon-button
-                slot="trailingIcon"
+                slot="end"
                 @click="${this._clearInput}"
-                alt="Clear"
-                title="Clear"
+                title="Clear search"
               >
                 <ha-icon icon="mdi:close"></ha-icon>
               </ha-icon-button>
@@ -175,6 +184,17 @@ customElements.whenDefined("card-tools").then(() => {
       this._results = [];
     }
 
+    _addEntry() {
+      if (!this._serviceExists("todo.create_item")) {
+        alert("The 'todo.create_item' service is not available in your Home Assistant instance.");
+        return;
+      }
+      this.hass.callService("todo", "create_item", {
+        entity_id: this.todo_list,
+        summary: this._searchValue || "New item",
+      });
+    }
+
     _debounce(func, wait) {
       let timeout;
       return function executedFunction(...args) {
@@ -233,7 +253,7 @@ customElements.whenDefined("card-tools").then(() => {
     static get styles() {
       return ct.LitCSS`
       #searchContainer {
-        width: 90%;
+        width: 95%;
         display: block;
         margin-left: auto;
         margin-right: auto;
@@ -251,7 +271,7 @@ customElements.whenDefined("card-tools").then(() => {
         font-style: italic;
       }
       #results {
-        width: 90%;
+        width: 95%;
         display: grid;
         padding-bottom: 15px;
         margin-top: 15px;
