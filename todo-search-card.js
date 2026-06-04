@@ -96,16 +96,16 @@ customElements.whenDefined("card-tools").then(() => {
                       title="Add entry"
                     >
                       <ha-icon icon="mdi:plus"></ha-icon>
+                    </ha-icon-button>
+                    <ha-icon-button
+                      slot="end"
+                      @click="${this._clearInput}"
+                      title="Clear search"
+                    >
+                      <ha-icon icon="mdi:close"></ha-icon>
                     </ha-icon-button>`
                   : ""
               }
-              <ha-icon-button
-                slot="end"
-                @click="${this._clearInput}"
-                title="Clear search"
-              >
-                <ha-icon icon="mdi:close"></ha-icon>
-              </ha-icon-button>
             </ha-input>
           </div>
 
