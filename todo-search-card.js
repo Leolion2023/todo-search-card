@@ -80,7 +80,7 @@ customElements.whenDefined("card-tools").then(() => {
               id="searchText"
               .value="${this._searchValue}"
               @input="${this._valueChanged}"
-              @keydown="${this._handleSearchKeyDown}"
+              @keydown="${this._addKeyPress}"
               no-label-float
               type="text"
               autocomplete="off"
@@ -185,10 +185,9 @@ customElements.whenDefined("card-tools").then(() => {
       this._results = [];
     }
 
-    _handleSearchKeyDown(ev) {
+    _addKeyPress(ev) {
       if (ev.key === "Enter") {
-        ev.preventDefault();
-        ev.stopPropagation();
+        this._addEntry();
       }
     }
 
@@ -261,7 +260,7 @@ customElements.whenDefined("card-tools").then(() => {
     static get styles() {
       return ct.LitCSS`
       #searchContainer {
-        width: 95%;
+        width: 98%;
         display: block;
         margin-left: auto;
         margin-right: auto;
@@ -279,7 +278,7 @@ customElements.whenDefined("card-tools").then(() => {
         font-style: italic;
       }
       #results {
-        width: 95%;
+        width: 98%;
         display: grid;
         padding-bottom: 15px;
         margin-top: 15px;
