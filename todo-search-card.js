@@ -164,13 +164,21 @@ customElements.whenDefined("card-tools").then(() => {
       description.style.whiteSpace = "pre-wrap";
       row.appendChild(description);
 
-      row.addEventListener("click", () => {
-        this.hass.callService("todo", "update_item", {
-          entity_id: this.todo_list,
-          item: item.uid,
-          status: this.search_ticked ? "needs_action" : "completed",
-        });
-        this._performSearch(this._searchValue);
+      row.addEventListener("click", async () => {
+        this._results = (this._results || []).filter((result) => result.uid !== item.uid);
+        this._todoItems = (this._todoItems || []).filter((result) => result.uid !== item.uid);
+
+        try {
+          await this.hass.callService("todo", "update_item", {
+            entity_id: this.todo_list,
+            item: item.uid,
+            status: this.search_ticked ? "needs_action" : "completed",
+          });
+          await this._performSearch(this._searchValue);
+        } catch (err) {
+          console.warn(err);
+          await this._performSearch(this._searchValue);
+        }
       });
     
       return row;
@@ -233,20 +241,19 @@ customElements.whenDefined("card-tools").then(() => {
       ));
     }
 
-    _performSearch(searchText) {
+    async _performSearch(searchText) {
       if (!this.config || !this.hass || searchText === "") {
         this._results = [];
         return;
       }
 
       try {
-        this._loadTodoItems(this.todo_list).then(items => {
-          this._todoItems = items;
-          const newResults = this._todoItems.filter(i =>
-            `${i.summary || ""} ${i.description || ""}`.toLowerCase().includes(searchText.toLowerCase())
-          );
-          this._results = newResults;
-        });
+        const items = await this._loadTodoItems(this.todo_list);
+        this._todoItems = items;
+        const newResults = this._todoItems.filter(i =>
+          `${i.summary || ""} ${i.description || ""}`.toLowerCase().includes(searchText.toLowerCase())
+        );
+        this._results = newResults;
       } catch (err) {
         console.warn(err);
         this._results = [];
