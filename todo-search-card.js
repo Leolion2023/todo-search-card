@@ -185,10 +185,10 @@ customElements.whenDefined("card-tools").then(() => {
     }
 
     _addEntry() {
-      if (!this._serviceExists("todo.create_item")) {
-        alert("The 'todo.create_item' service is not available in your Home Assistant instance.");
-        return;
-      }
+      // if (!this._serviceExists("todo.create_item")) {
+      //   alert("The 'todo.create_item' service is not available in your Home Assistant instance.");
+      //   return;
+      // }
       this.hass.callService("todo", "create_item", {
         entity_id: this.todo_list,
         summary: this._searchValue || "New item",
@@ -246,7 +246,7 @@ customElements.whenDefined("card-tools").then(() => {
 
     _serviceExists(serviceCall) {
       var [domain, service] = serviceCall.split(".");
-      var servicesForDomain = this.hass.services.async_services_for_domain(domain);
+      var servicesForDomain = this.hass.services[domain];
       return servicesForDomain && service in servicesForDomain;
     }
 
